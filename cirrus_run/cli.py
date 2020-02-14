@@ -7,6 +7,7 @@ import argparse
 import logging
 import os
 import sys
+from pprint import pformat
 
 from . import CirrusAPI
 from .throbber import ProgressBar
@@ -26,6 +27,7 @@ ENVIRONMENT = {
 def main(*a, **ka):
     args = parse_args(*a, **ka)
     configure_logging(args.verbose)
+    log.debug('Parsed command line arguments:\n{}'.format(pformat(vars(args), indent=2)))
 
     with open(args.config) as config_file:
         config = config_file.read()

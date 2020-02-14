@@ -58,7 +58,7 @@ class CirrusAPI:
         self._requests = session
 
     def __call__(self, query, params=None, retries=None, delay=None):
-        payload = dict(query=query, variables=params or {})
+        payload = dict(query=query.strip(), variables=params or {})
         log.debug('Calling API with: {}'.format(payload))
         answer = self._post(json=payload, retries=retries, delay=delay)
         return self._parse_api_response(answer)
