@@ -75,7 +75,7 @@ def parse_args(*a, **ka):
         default=os.getenv(ENVIRONMENT['token']),
         metavar='TOKEN',
         help=(
-            'API token for accessing CirrusCI API. '
+            'Access token for CirrusCI API. '
             'Recommended and more secure way of providing the token is via '
             'environment variable. '
             'Default value: ${}'
