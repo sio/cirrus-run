@@ -3,12 +3,13 @@ Command line interface for cirrus-run
 '''
 
 
-import os
 import argparse
 import logging
+import os
+import sys
 
 from . import CirrusAPI
-from .queries import get_repo, create_build, wait_build
+from .queries import get_repo, create_build, wait_build, CirrusBuildError
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +32,19 @@ def main(*a, **ka):
     api = CirrusAPI(args.token)
     repo_id = get_repo(api, args.owner, args.repo)
     build_id = create_build(api, repo_id, args.branch, config)
-    wait_build(api, build_id)
+
+    print('Build created: https://cirrus-ci.com/build/{id}'.format(id=build_id))
+
+    try:
+        wait_build(api, build_id)
+        print('Build successful: https://cirrus-ci.com/build/{id}'.format(id=build_id))
+    except CirrusBuildError:
+        print('Build failed: https://cirrus-ci.com/build/{id}'.format(id=build_id))
+        sys.exit(1)
+    except Exception as exc:
+        print('Build error: https://cirrus-ci.com/build/{id}'.format(id=build_id))
+        print('  {exc.__class__.__name__}: {str(exc)}'.format(exc=exc))
+        sys.exit(2)
 
 
 def parse_args(*a, **ka):
