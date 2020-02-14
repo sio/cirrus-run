@@ -24,11 +24,11 @@ def parse_args(*a, **ka):
     parser.add_argument(
         'config',
         metavar='CONFIG',
-        default=os.getenv(ENVIRONMENT['config']) or './.cirrus.yml',
+        default=os.getenv(ENVIRONMENT['config'], '.cirrus.yml'),
         nargs='?',
         help=(
             'Path to YAML configuration file. '
-            'Default value: ${} or ./.cirrus.yml'
+            'Default value: ${} or .cirrus.yml'
         ).format(ENVIRONMENT['config']),
     )
     parser.add_argument(
@@ -69,11 +69,15 @@ def parse_args(*a, **ka):
         parser.error('API token is not defined')
 
     if not args.github:
-        parser.error('GitHub repo not defined')
+        parser.error('GitHub repo is not defined')
+
     repo_parts = args.github.split('/')
     if len(repo_parts) != 2 or not all(repo_parts):
-        parser.error('Invalid repo identificator: {}'.format(args.github))
+        parser.error('invalid repo identifier: {}'.format(args.github))
     args.owner, args.repo = repo_parts
+
+    if not os.path.isfile(args.config):
+        parser.error('config file not found: {}'.format(args.config))
 
     return args
 
