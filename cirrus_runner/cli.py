@@ -68,6 +68,8 @@ def parse_args(*a, **ka):
     if not args.token:
         parser.error('API token is not defined')
 
+    if not args.github:
+        parser.error('GitHub repo not defined')
     repo_parts = args.github.split('/')
     if len(repo_parts) != 2 or not all(repo_parts):
         parser.error('Invalid repo identificator: {}'.format(args.repo))
