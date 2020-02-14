@@ -21,9 +21,9 @@ def setup():
         return log
 
     log_file = os.environ.get('CIRRUS_LOG_FILE')
-    log_stdout = os.environ.get('CIRRUS_LOG_STDOUT')
+    log_stdout = True
 
-    log.level = logging.DEBUG
+    log.level = logging.WARNING
 
     if log_file:
         handler = logging.FileHandler(log_file, encoding='utf-8')
