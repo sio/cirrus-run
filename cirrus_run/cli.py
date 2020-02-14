@@ -9,6 +9,7 @@ import os
 import sys
 
 from . import CirrusAPI
+from .throbber import ProgressBar
 from .queries import get_repo, create_build, wait_build, CirrusBuildError
 
 log = logging.getLogger(__name__)
@@ -34,17 +35,20 @@ def main(*a, **ka):
     build_id = create_build(api, repo_id, args.branch, config)
 
     print('Build created: https://cirrus-ci.com/build/{id}'.format(id=build_id))
-
-    try:
-        wait_build(api, build_id)
-        print('Build successful: https://cirrus-ci.com/build/{id}'.format(id=build_id))
-    except CirrusBuildError:
-        print('Build failed: https://cirrus-ci.com/build/{id}'.format(id=build_id))
-        sys.exit(1)
-    except Exception as exc:
-        print('Build error: https://cirrus-ci.com/build/{id}'.format(id=build_id))
-        print('  {exc.__class__.__name__}: {str(exc)}'.format(exc=exc))
-        sys.exit(2)
+    with ProgressBar('' if args.verbose else '.'):
+        try:
+            wait_build(api, build_id)
+            rc, status, message = 0, 'successful', ''
+        except CirrusBuildError:
+            rc, status, message = 1, 'failed', ''
+        except Exception as exc:
+            rc, status, message = 2, 'error', '{exception}: {text}'.format(
+                                        exception=exc.__class__.__name__,
+                                        text=str(exc))
+    print('Build {}: https://cirrus-ci.com/build/{}'.format(status, build_id))
+    if message:
+        print('  {}'.format(message))
+    sys.exit(rc)
 
 
 def parse_args(*a, **ka):
