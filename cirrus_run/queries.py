@@ -1,5 +1,8 @@
 '''
 Predefined queries for Cirrus API
+
+Designed to work with the following schema (2020-01-17):
+https://github.com/cirruslabs/cirrus-ci-web/blob/1806cccc/schema.graphql
 '''
 
 
