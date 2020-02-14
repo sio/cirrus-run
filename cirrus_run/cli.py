@@ -9,6 +9,8 @@ import os
 import sys
 from pprint import pformat
 
+from jinja2 import Template
+
 from . import CirrusAPI
 from .throbber import ProgressBar
 from .queries import get_repo, create_build, wait_build, CirrusBuildError
@@ -29,9 +31,7 @@ def main(*a, **ka):
     configure_logging(args.verbose)
     log.debug('Parsed command line arguments:\n{}'.format(pformat(vars(args), indent=2)))
 
-    with open(args.config) as config_file:
-        config = config_file.read()
-
+    config = read_config(args.config)
     api = CirrusAPI(args.token)
     repo_id = get_repo(api, args.owner, args.repo)
     build_id = create_build(api, repo_id, args.branch, config)
@@ -53,6 +53,31 @@ def main(*a, **ka):
     sys.exit(rc)
 
 
+def read_config(path):
+    '''Load YAML config from file or Jinja2 template'''
+    with open(path) as config_file:
+        raw = config_file.read()
+    ext = os.path.splitext(path)[1].lower().lstrip('.')
+    if ext in {'j2', 'jinja', 'jinja2'}:
+        template = Template(raw)
+        return template.render(os.environ)
+    else:
+        return raw
+
+
+def fallback_config_path():
+    '''Calculate default config path if none provided by user'''
+    paths = [
+        '.cirrus.yml',
+        '.cirrus.yml.j2',
+    ]
+    for path in paths:
+        if os.path.isfile(path):
+            return path
+    else:
+        return paths[0]
+
+
 def parse_args(*a, **ka):
     parser = argparse.ArgumentParser(
         description=(
@@ -63,11 +88,13 @@ def parse_args(*a, **ka):
     parser.add_argument(
         'config',
         metavar='CONFIG',
-        default=os.getenv(ENVIRONMENT['config'], '.cirrus.yml'),
+        default=os.getenv(ENVIRONMENT['config'], fallback_config_path()),
         nargs='?',
         help=(
-            'Path to YAML configuration file. '
-            'Default value: ${} or .cirrus.yml'
+            'Path to YAML configuration file or Jinja2 template for such file. '
+            'Filenames ending with .j2 or .jinja2 are assumed to provide the templates. '
+            'All environment variables are available inside these templates. '
+            'Default value: ${} or .cirrus.yml or .cirrus.yml.j2'
         ).format(ENVIRONMENT['config']),
     )
     parser.add_argument(

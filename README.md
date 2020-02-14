@@ -40,8 +40,11 @@ usage: cirrus-run [-h] [--token TOKEN] [--github REPO] [--branch BRANCH] [-v]
 Execute CI jobs in CirrusCI
 
 positional arguments:
-  CONFIG           Path to YAML configuration file. Default value:
-                   $CIRRUS_CONFIG or .cirrus.yml
+  CONFIG           Path to YAML configuration file or Jinja2 template for such
+                   file. Filenames ending with .j2 or .jinja2 are assumed to
+                   provide the templates. All environment variables are
+                   available inside these templates. Default value:
+                   $CIRRUS_CONFIG or .cirrus.yml or .cirrus.yml.j2
 
 optional arguments:
   -h, --help       show this help message and exit

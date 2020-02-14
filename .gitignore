@@ -3,4 +3,4 @@
 .venv
 .env
 Makefile.venv
-.cirrus.yml
+.cirrus.yml*
