@@ -27,7 +27,7 @@ class CirrusTimeoutError(RuntimeError):
     '''Raised when build takes too long'''
 
 
-def repo_id(api: CirrusAPI, owner: str, repo: str) -> str:
+def get_repo(api: CirrusAPI, owner: str, repo: str) -> str:
     '''Get internal ID for GitHub repo'''
     query = '''
         query GetRepos($owner: String!) {

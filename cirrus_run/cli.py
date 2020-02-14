@@ -5,13 +5,33 @@ Command line interface for cirrus-run
 
 import os
 import argparse
+import logging
+
+from . import CirrusAPI
+from .queries import get_repo, create_build, wait_build
+
+log = logging.getLogger(__name__)
 
 
 ENVIRONMENT = {
     'github': 'CIRRUS_GITHUB_REPO',
+    'branch': 'CIRRUS_GITHUB_BRANCH',
     'token': 'CIRRUS_API_TOKEN',
     'config': 'CIRRUS_CONFIG',
 }
+
+
+def main(*a, **ka):
+    args = parse_args(*a, **ka)
+    configure_logging(args.verbose)
+
+    with open(args.config) as config_file:
+        config = config_file.read()
+
+    api = CirrusAPI(args.token)
+    repo_id = get_repo(api, args.owner, args.repo)
+    build_id = create_build(api, repo_id, args.branch, config)
+    wait_build(api, build_id)
 
 
 def parse_args(*a, **ka):
@@ -54,6 +74,16 @@ def parse_args(*a, **ka):
         ).format(ENVIRONMENT['github']),
     )
     parser.add_argument(
+        '--branch',
+        default=os.getenv(ENVIRONMENT['branch'], 'master'),
+        metavar='BRANCH',
+        help=(
+            'GitHub repo branch that will own the build. '
+            'This branch may have no relation to the CI job being executed. '
+            'Default value: ${} or master'
+        ).format(ENVIRONMENT['branch']),
+    )
+    parser.add_argument(
         '--owner',
         default='',
         help=argparse.SUPPRESS,
@@ -62,6 +92,14 @@ def parse_args(*a, **ka):
         '--repo',
         default='',
         help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        action='count',
+        default=0,
+        help=('Increase output verbosity. Repeating this argument multiple times '
+              'increases verbosity level even further.'),
     )
     args = parser.parse_args(*a, **ka)
 
@@ -80,6 +118,20 @@ def parse_args(*a, **ka):
         parser.error('config file not found: {}'.format(args.config))
 
     return args
+
+
+def configure_logging(verbosity):
+    verbosity_levels = {
+        0: logging.WARNING,
+        1: logging.INFO,
+        2: logging.DEBUG,
+        3: logging.NOTSET + 1,
+    }
+    if verbosity > max(verbosity_levels):
+        verbosity = max(verbosity_levels)
+    level = verbosity_levels.get(verbosity)
+    log = logging.getLogger(__name__.split('.')[0])
+    log.level = min(log.level, level)
 
 
 if __name__ == '__main__':
