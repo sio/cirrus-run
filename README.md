@@ -26,6 +26,10 @@ cirrus-run can be installed with pip:
 pip install "https://github.com/sio/cirrus-run/tarball/master"
 ```
 
+You can also run it in Docker:
+[potyarkin/cirrus-run](https://hub.docker.com/r/potyarkin/cirrus-run).
+This image is especially useful for integrating with other CI platforms.
+
 
 ## Usage
 
