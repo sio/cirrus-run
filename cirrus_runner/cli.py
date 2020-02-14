@@ -72,7 +72,7 @@ def parse_args(*a, **ka):
         parser.error('GitHub repo not defined')
     repo_parts = args.github.split('/')
     if len(repo_parts) != 2 or not all(repo_parts):
-        parser.error('Invalid repo identificator: {}'.format(args.repo))
+        parser.error('Invalid repo identificator: {}'.format(args.github))
     args.owner, args.repo = repo_parts
 
     return args
