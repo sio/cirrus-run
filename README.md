@@ -13,8 +13,10 @@ CirrusCI.
 It uses local YAML files for build configuration, but requires a reference to
 GitHub repo and branch to assign ownership of the build. The build itself may
 have no relation to the specified GitHub repo. This enables integration with
-other source code hosting platforms, e.g. with GitLab: you can trigger
+other source code hosting platforms, [e.g. with GitLab][blog]: you can trigger
 CirrusCI builds by executing cirrus-run in GitLab CI
+
+[blog]: https://potyarkin.ml/posts/2020/cirrus-ci-integration-for-gitlab-projects/
 
 
 
