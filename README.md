@@ -25,7 +25,13 @@ CirrusCI builds by executing cirrus-run in GitLab CI
 cirrus-run can be installed with pip:
 
 ```
-pip install "https://github.com/sio/cirrus-run/tarball/master"
+pip install cirrus-run
+```
+
+Latest development versions are also installable:
+
+```
+pip install "https://github.com/sio/cirrus-run/tarball/master#egg=cirrus-run"
 ```
 
 You can also run it in Docker:
