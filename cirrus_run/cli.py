@@ -23,6 +23,7 @@ ENVIRONMENT = {
     'branch': 'CIRRUS_GITHUB_BRANCH',
     'token': 'CIRRUS_API_TOKEN',
     'config': 'CIRRUS_CONFIG',
+    'timeout': 'CIRRUS_TIMEOUT',
 }
 
 
@@ -39,7 +40,7 @@ def main(*a, **ka):
     print('Build created: https://cirrus-ci.com/build/{id}'.format(id=build_id))
     with ProgressBar('' if args.verbose else '.'):
         try:
-            wait_build(api, build_id)
+            wait_build(api, build_id, abort=args.timeout*60)
             rc, status, message = 0, 'successful', ''
         except CirrusBuildError:
             rc, status, message = 1, 'failed', ''
@@ -146,6 +147,15 @@ def parse_args(*a, **ka):
         default=0,
         help=('Increase output verbosity. Repeating this argument multiple times '
               'increases verbosity level even further.'),
+    )
+    parser.add_argument(
+        '--timeout',
+        default=os.getenv(ENVIRONMENT['timeout'], 120),
+        metavar='MINUTES',
+        help=(
+            'Timeout (in minutes) before assuming that the build has hanged and '
+            'that API responses are unreliable. Default value: ${} or 120'
+        ).format(ENVIRONMENT['timeout']),
     )
     args = parser.parse_args(*a, **ka)
 
