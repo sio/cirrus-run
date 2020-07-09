@@ -48,26 +48,29 @@ usage: cirrus-run [-h] [--token TOKEN] [--github REPO] [--branch BRANCH] [-v]
 Execute CI jobs in CirrusCI
 
 positional arguments:
-  CONFIG           Path to YAML configuration file or Jinja2 template for such
-                   file. Filenames ending with .j2 or .jinja2 are assumed to
-                   provide the templates. All environment variables are
-                   available inside these templates. Default value:
-                   $CIRRUS_CONFIG or .cirrus.yml or .cirrus.yml.j2
+  CONFIG             Path to YAML configuration file or Jinja2 template for such
+                     file. Filenames ending with .j2 or .jinja2 are assumed to
+                     provide the templates. All environment variables are
+                     available inside these templates. Default value:
+                     $CIRRUS_CONFIG or .cirrus.yml or .cirrus.yml.j2
 
 optional arguments:
-  -h, --help       show this help message and exit
-  --token TOKEN    Access token for CirrusCI API. Recommended and more secure
-                   way of providing the token is via environment variable.
-                   Default value: $CIRRUS_API_TOKEN
-  --github REPO    GitHub repo id that will own the build ("owner/reponame").
-                   This repo may have no relation to the CI job being
-                   executed. It may even be empty. Default value:
-                   $CIRRUS_GITHUB_REPO
-  --branch BRANCH  GitHub repo branch that will own the build. This branch may
-                   have no relation to the CI job being executed. Default
-                   value: $CIRRUS_GITHUB_BRANCH or master
-  -v, --verbose    Increase output verbosity. Repeating this argument multiple
-                   times increases verbosity level even further.
+  -h, --help         show this help message and exit
+  --token TOKEN      Access token for CirrusCI API. Recommended and more secure
+                     way of providing the token is via environment variable.
+                     Default value: $CIRRUS_API_TOKEN
+  --github REPO      GitHub repo id that will own the build ("owner/reponame").
+                     This repo may have no relation to the CI job being
+                     executed. It may even be empty. Default value:
+                     $CIRRUS_GITHUB_REPO
+  --branch BRANCH    GitHub repo branch that will own the build. This branch may
+                     have no relation to the CI job being executed. Default
+                     value: $CIRRUS_GITHUB_BRANCH or master
+  -v, --verbose      Increase output verbosity. Repeating this argument multiple
+                     times increases verbosity level even further.
+  --timeout MINUTES  Timeout (in minutes) before assuming that the build has
+                     hanged and that API responses are unreliable. Default
+                     value: $CIRRUS_TIMEOUT or 120
 ```
 
 
