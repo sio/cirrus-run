@@ -88,6 +88,8 @@ def create_build(api: CirrusAPI,
 
 def wait_build(api, build_id: str, delay=3, abort=60*60):
     '''Wait until build finishes'''
+    ERROR_CONFIRM_TIMES = 3
+
     query = '''
         query GetBuild($build: ID!) {
             build(id: $build) {
@@ -97,6 +99,7 @@ def wait_build(api, build_id: str, delay=3, abort=60*60):
     '''
     params = dict(build=build_id)
 
+    errors_confirmed = 0
     time_start = time()
     while time() < time_start + abort:
         response = api(query, params)
@@ -105,9 +108,15 @@ def wait_build(api, build_id: str, delay=3, abort=60*60):
         if status in {'COMPLETED'}:
             return True
         if status in {'CREATED', 'TRIGGERED', 'EXECUTING'}:
+            errors_confirmed = 0
             sleep(delay)
             continue
         if status in {'NEEDS_APPROVAL', 'FAILED', 'ABORTED', 'ERRORED'}:
-            raise CirrusBuildError('build {} was terminated: {}'.format(build_id, status))
+            errors_confirmed += 1
+            if errors_confirmed < ERROR_CONFIRM_TIMES:
+                sleep(2 * delay / (ERROR_CONFIRM_TIMES - 1))
+                continue
+            else:
+                raise CirrusBuildError('build {} was terminated: {}'.format(build_id, status))
         raise CirrusBuildError('build {} returned unknown status: {}'.format(build_id, status))
     raise CirrusTimeoutError('build {} timed out'.format(build_id))
