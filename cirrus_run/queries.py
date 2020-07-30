@@ -118,5 +118,5 @@ def wait_build(api, build_id: str, delay=3, abort=60*60):
                 continue
             else:
                 raise CirrusBuildError('build {} was terminated: {}'.format(build_id, status))
-        raise CirrusBuildError('build {} returned unknown status: {}'.format(build_id, status))
+        raise ValueError('build {} returned unknown status: {}'.format(build_id, status))
     raise CirrusTimeoutError('build {} timed out'.format(build_id))
