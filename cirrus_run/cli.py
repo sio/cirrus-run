@@ -36,8 +36,9 @@ def main(*a, **ka):
     api = CirrusAPI(args.token)
     repo_id = get_repo(api, args.owner, args.repo)
     build_id = create_build(api, repo_id, args.branch, config)
+    build_url = 'https://cirrus-ci.com/build/{}'.format(build_id)
 
-    print('Build created: https://cirrus-ci.com/build/{id}'.format(id=build_id))
+    print('Build created: {}'.format(build_url))
     with ProgressBar('' if args.verbose else '.'):
         try:
             wait_build(api, build_id, abort=args.timeout*60)
@@ -52,7 +53,7 @@ def main(*a, **ka):
     for chunk in build_log(api, build_id):
         print(chunk)
 
-    print('Build {}: https://cirrus-ci.com/build/{}'.format(status, build_id))
+    print('Build {}: {}'.format(status, build_url))
     if message:
         print('  {}'.format(message))
     sys.exit(rc)
