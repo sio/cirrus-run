@@ -25,6 +25,7 @@ ENVIRONMENT = {
     'token': 'CIRRUS_API_TOKEN',
     'config': 'CIRRUS_CONFIG',
     'timeout': 'CIRRUS_TIMEOUT',
+    'show_log': 'CIRRUS_SHOW_BUILD_LOG',
 }
 
 
@@ -51,12 +52,15 @@ def main(*a, **ka):
                                         exception=exc.__class__.__name__,
                                         text=str(exc))
 
-    try:
-        for chunk in build_log(api, build_id):
-            print(chunk)
-    except Exception as exc:
-        error = traceback.format_exc()
-        log.error(error)
+    if args.show_build_log == 'always' \
+    or (args.show_build_log == 'failure' and rc != 0):
+        print('Build {}, see log below:'.format(status, build_url))
+        try:
+            for chunk in build_log(api, build_id):
+                print(chunk)
+        except Exception as exc:
+            error = traceback.format_exc()
+            log.error(error)
 
     print('Build {}: {}'.format(status, build_url))
     if message:
@@ -166,6 +170,16 @@ def parse_args(*a, **ka):
             'Timeout (in minutes) before assuming that the build has hanged and '
             'that API responses are unreliable. Default value: ${} or 120'
         ).format(ENVIRONMENT['timeout']),
+    )
+    parser.add_argument(
+        '--show-build-log',
+        default=os.getenv(ENVIRONMENT['show_log'], 'failure'),
+        choices={'always', 'never', 'failure'},
+        type=str.lower,
+        help=(
+            'Specify whether to print the build log to stdout after completing CI run. '
+            'Default value: ${} or "failure"'
+        ).format(ENVIRONMENT['show_log']),
     )
     args = parser.parse_args(*a, **ka)
 
