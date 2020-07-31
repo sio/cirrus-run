@@ -7,6 +7,7 @@ import argparse
 import logging
 import os
 import sys
+import traceback
 from pprint import pformat
 
 from jinja2 import Template
@@ -50,8 +51,12 @@ def main(*a, **ka):
                                         exception=exc.__class__.__name__,
                                         text=str(exc))
 
-    for chunk in build_log(api, build_id):
-        print(chunk)
+    try:
+        for chunk in build_log(api, build_id):
+            print(chunk)
+    except Exception as exc:
+        error = traceback.format_exc()
+        log.error(error)
 
     print('Build {}: {}'.format(status, build_url))
     if message:
