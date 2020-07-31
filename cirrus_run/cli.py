@@ -13,7 +13,7 @@ from jinja2 import Template
 
 from . import CirrusAPI
 from .throbber import ProgressBar
-from .queries import get_repo, create_build, wait_build, CirrusBuildError
+from .queries import build_log, get_repo, create_build, wait_build, CirrusBuildError
 
 log = logging.getLogger(__name__)
 
@@ -48,6 +48,10 @@ def main(*a, **ka):
             rc, status, message = 2, 'error', '{exception}: {text}'.format(
                                         exception=exc.__class__.__name__,
                                         text=str(exc))
+
+    for chunk in build_log(api, build_id):
+        print(chunk)
+
     print('Build {}: https://cirrus-ci.com/build/{}'.format(status, build_id))
     if message:
         print('  {}'.format(message))

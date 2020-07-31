@@ -120,3 +120,33 @@ def wait_build(api, build_id: str, delay=3, abort=60*60):
                 raise CirrusBuildError('build {} was terminated: {}'.format(build_id, status))
         raise ValueError('build {} returned unknown status: {}'.format(build_id, status))
     raise CirrusTimeoutError('build {} timed out'.format(build_id))
+
+
+def build_log(api, build_id):
+    '''Yield build log in chunks of text'''
+    query = '''
+        query GetBuildLog($build: ID!) {
+            build(id: $build) {
+                tasks {
+                    id
+                    name
+                    commands {
+                        name
+                    }
+                }
+            }
+        }
+    '''
+    params = dict(build=build_id)
+    url_template = 'https://api.cirrus-ci.com/v1/task/{task[id]}/logs/{command[name]}.log'
+    response = api(query, params)
+    for task in response['build']['tasks']:
+        yield '\n## Task: {task[name]}'.format(**locals())
+        for command in task['commands']:
+            yield '\n## Task instruction: {command[name]}'.format(**locals())
+            url = url_template.format(**locals())
+            log = api.get(url)
+            if log.status_code == 200:
+                yield log.text
+            else:
+                yield 'Unable to fetch url: {}'.format(url)

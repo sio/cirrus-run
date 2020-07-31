@@ -88,3 +88,7 @@ class CirrusAPI:
                 else:
                     log.debug('Error when calling API: {}, retrying'.format(exc))
                     sleep(delay)
+
+    def get(self, *a, **ka):
+        '''Perform GET request using API session'''
+        return self._requests.get(*a, **ka)
