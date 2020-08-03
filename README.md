@@ -2,8 +2,10 @@
 
 ## Project status
 
-Minimum viable product. Currently used in CI pipeline for at least one
-project.
+Beta software. Adopted by several third parties to build their CI pipelines.
+Breaking changes in new releases are possible. Recommended to pin to specific
+version when using in production.
+
 
 ## Overview
 
