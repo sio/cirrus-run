@@ -58,29 +58,19 @@ class CirrusAPI:
         self._requests = session
 
     def __call__(self, query, params=None, retries=None, delay=None):
-        payload = dict(query=query.strip(), variables=params or {})
-        log.debug('Calling API with: {}'.format(payload))
-        answer = self._post(json=payload, retries=retries, delay=delay)
-        return self._parse_api_response(answer)
-
-    def _parse_api_response(self, data):
-        if 'errors' in data and data['errors']:
-            raise CirrusAPIError(data['errors'])
-        return data['data']
-
-    def _post(self, retries=None, delay=None, **ka):
         if retries is None:
             retries = self.RETRY_ATTEMPTS
         if delay is None:
             delay = self.RETRY_DELAY
 
+        payload = dict(query=query.strip(), variables=params or {})
+        log.debug('Calling API with: {}'.format(payload))
+
         error_count = 0
         while True:
             try:
-                response = self._requests.post(self._url, **ka)
-                if response.status_code != 200:
-                    raise CirrusHTTPError(response)
-                return response.json()
+                answer = self._post(json=payload)
+                return self._parse_api_response(answer)
             except Exception as exc:
                 error_count += 1
                 if error_count > retries:
@@ -88,6 +78,17 @@ class CirrusAPI:
                 else:
                     log.debug('Error when calling API: {}, retrying'.format(exc))
                     sleep(delay)
+
+    def _parse_api_response(self, data):
+        if 'errors' in data and data['errors']:
+            raise CirrusAPIError(data['errors'])
+        return data['data']
+
+    def _post(self, **ka):
+        response = self._requests.post(self._url, **ka)
+        if response.status_code != 200:
+            raise CirrusHTTPError(response)
+        return response.json()
 
     def get(self, *a, **ka):
         '''Perform GET request using API session'''
