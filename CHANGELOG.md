@@ -12,6 +12,8 @@ their feedback!
 - Preempted CI instances do not cause cirrus-run to mistakenly report build
   failure anymore
   *(issue #4)*
+- Automatic retries now happen also on API's internal server errors
+  *(pull request #6)*
 
 [libvirt]: https://gitlab.com/libvirt/libvirt
 
