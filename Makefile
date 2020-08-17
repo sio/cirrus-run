@@ -11,6 +11,12 @@ run: | venv
 	$(VENV)/cirrus-run $(ARGS)
 
 
+.PHONY: inspect
+inspect: export CIRRUS_GITHUB_REPO?=libvirt/libvirt
+inspect:
+	$(VENV)/python inspect.py
+
+
 include Makefile.venv
 Makefile.venv:
 	curl \
