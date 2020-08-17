@@ -1,6 +1,6 @@
 # Changelog for [cirrus-run]
 
-## v0.3.0 (TODO: add release date)
+## v0.3.0 (2020-08-17)
 
 Bugs were fixed, some features were added. Many thanks to [libvirt] team for
 their feedback!
