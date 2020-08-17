@@ -47,3 +47,10 @@ upload: package $(VENV)/twine
 .PHONY: debug/build_status
 debug/build_status: | venv
 	$(VENV)/python $@.py $(DEBUG_BUILD_ID)
+
+
+.PHONY: debug/find_multiple_tasks
+debug/find_multiple_tasks: export CIRRUS_GITHUB_REPO?=libvirt/libvirt
+debug/find_multiple_tasks: export CIRRUS_API_TOKEN?=" "
+debug/find_multiple_tasks:
+	$(VENV)/python $@.py
