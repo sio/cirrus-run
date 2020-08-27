@@ -11,6 +11,12 @@ run: | venv
 	$(VENV)/cirrus-run $(ARGS)
 
 
+.PHONY: test
+REQUIREMENTS_TXT+=tests/requirements.txt
+test: | venv
+	$(VENV)/pytest $(PYTEST_ARGS)
+
+
 include Makefile.venv
 Makefile.venv:
 	curl \
