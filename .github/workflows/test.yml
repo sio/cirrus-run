@@ -17,4 +17,7 @@ jobs:
           path: cache
           key: increment to drop caches -- v01
 
+      - name: Install required system packages
+        run: sudo apt update; sudo apt -y install python3-venv
+
       - run: make test
