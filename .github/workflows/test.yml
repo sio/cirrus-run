@@ -1,0 +1,20 @@
+---
+name: Execute automated tests
+
+on:
+  push:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    env:
+      PIP_CACHE_DIR: cache
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/cache@v1
+        with:
+          path: cache
+          key: increment to drop caches -- v01
+
+      - run: make test
