@@ -29,10 +29,11 @@ class CirrusHTTPError(Exception):
         url = response.url
         message = 'HTTP {code}: {url}\n{text}'.format(**locals())
         super().__init__(message)
-        self._code = code
+        self.code = code
+        self.response = response
 
     def __repr__(self):
-        return '<{cls} [{code}]>'.format(cls=self.__class__.__name__, code=self._code)
+        return '<{cls} [{code}]>'.format(cls=self.__class__.__name__, code=self.code)
 
 
 class CirrusAPI:
@@ -42,6 +43,7 @@ class CirrusAPI:
     USER_AGENT = 'Cirrus remote CLI <https://github.com/sio/cirrus-run>'
     RETRY_ATTEMPTS = 3
     RETRY_DELAY = 2  # seconds
+    RETRY_LONG_DELAY = 30
 
     def __init__(self, token, url=None):
         if url is None:
@@ -67,6 +69,7 @@ class CirrusAPI:
         log.debug('Calling API with: {}'.format(payload))
 
         error_count = 0
+        long_wait_happened = False
         while True:
             try:
                 answer = self._post(json=payload)
@@ -75,6 +78,12 @@ class CirrusAPI:
                 error_count += 1
                 if error_count > retries:
                     raise exc
+                elif isinstance(exc, CirrusHTTPError) \
+                and 'try again in 30 seconds' in exc.response.text \
+                and not long_wait_happened:
+                    long_wait_happened = True
+                    log.debug('API server asked for longer retry delay: {}, retrying'.format(exc))
+                    sleep(self.RETRY_LONG_DELAY)
                 else:
                     log.debug('Error when calling API: {}, retrying'.format(exc))
                     sleep(delay)
