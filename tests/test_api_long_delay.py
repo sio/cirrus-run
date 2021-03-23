@@ -1,3 +1,4 @@
+import logging
 import pytest
 import responses
 from time import monotonic as time
@@ -15,7 +16,7 @@ def api():
 
 
 @responses.activate
-def test_long_retry_delay_required(api):
+def test_long_retry_delay_required(api, caplog):
     '''Wait out intermittent API server errors'''
     responses.add(
         responses.Response(
@@ -26,6 +27,8 @@ def test_long_retry_delay_required(api):
         )
     )
 
+    caplog.set_level(logging.DEBUG, logger='cirrus_run')
+
     time_start = time()
     with pytest.raises(CirrusHTTPError):
         api('fake query text')
@@ -34,12 +37,18 @@ def test_long_retry_delay_required(api):
     assert time_end - time_start > api.RETRY_LONG_DELAY + api.RETRY_DELAY * 2
     assert time_end - time_start < api.RETRY_LONG_DELAY * 3
 
+    long_delay_log_message_count = 0
+    for record in caplog.records:
+        if 'API server asked for longer retry delay' in record.message:
+            long_delay_log_message_count += 1
+    assert long_delay_log_message_count == 1
+
     assert responses.assert_call_count(api._url, 1 + 3), \
            'Incorrect number of _post calls before raising CirrusHTTPError'
 
 
 @responses.activate
-def test_long_retry_not_required(api):
+def test_long_retry_not_required(api, caplog):
     '''Some 502 errors do not require a long delay'''
     responses.add(
         responses.Response(
@@ -49,6 +58,8 @@ def test_long_retry_not_required(api):
         )
     )
 
+    caplog.set_level(logging.DEBUG, logger='cirrus_run')
+
     time_start = time()
     with pytest.raises(CirrusHTTPError):
         api('fake query text')
@@ -56,6 +67,12 @@ def test_long_retry_not_required(api):
 
     assert time_end - time_start > api.RETRY_DELAY * 3
     assert time_end - time_start < api.RETRY_LONG_DELAY + api.RETRY_DELAY * 2
+
+    long_delay_log_message_count = 0
+    for record in caplog.records:
+        if 'API server asked for longer retry delay' in record.message:
+            long_delay_log_message_count += 1
+    assert long_delay_log_message_count == 0
 
     assert responses.assert_call_count(api._url, 1 + 3), \
            'Incorrect number of _post calls before raising CirrusHTTPError'
