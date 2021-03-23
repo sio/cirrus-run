@@ -1,5 +1,11 @@
 # Changelog for [cirrus-run]
 
+## v0.4.0 (2021-03-23)
+
+- Added a longer one-time delay to wait out API server errors (see issue #7)
+- Added a barebones test suite to (hopefully) eliminate regressions
+
+
 ## v0.3.0 (2020-08-17)
 
 Bugs were fixed, some features were added. Many thanks to [libvirt] team for
