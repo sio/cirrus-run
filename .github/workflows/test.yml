@@ -21,3 +21,17 @@ jobs:
         run: sudo apt update; sudo apt -y install python3-venv
 
       - run: make test
+
+  build:
+    needs: pytest
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY_PASSWD: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    steps:
+      - uses: actions/checkout@v1
+      - run: |
+          echo $DOCKER_REGISTRY_PASSWD | docker login -u potyarkin --password-stdin
+          docker build --pull --tag potyarkin/cirrus-run:latest .
+      - if: github.ref == 'refs/heads/master'
+        run: |
+          docker push potyarkin/cirrus-run:latest
