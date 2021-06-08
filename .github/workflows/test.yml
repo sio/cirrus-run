@@ -3,6 +3,8 @@ name: Execute automated tests
 
 on:
   push:
+  schedule:
+    - cron: '12 11 9 * *'
 
 jobs:
   pytest:
