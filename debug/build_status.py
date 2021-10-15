@@ -10,7 +10,7 @@ from cirrus_run.cli import ENVIRONMENT
 
 
 def main():
-    token = os.environ[ENVIRONMENT['token']]
+    token = os.environ.get(ENVIRONMENT['token'], "")
     api = CirrusAPI(token)
     build_id = sys.argv[1]
 
