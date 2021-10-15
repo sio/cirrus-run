@@ -17,6 +17,7 @@ def main():
     query = '''
         query GetBuild($build: ID!) {
             build(id: $build) {
+                id
                 durationInSeconds
                 clockDurationInSeconds
                 status
