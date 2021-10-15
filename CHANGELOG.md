@@ -1,5 +1,11 @@
 # Changelog for [cirrus-run]
 
+## v0.5.0 (2021-10-15)
+
+- Gracefully handle GraphQL internal server errors wrapped into HTTP 200
+  response
+
+
 ## v0.4.0 (2021-03-23)
 
 - Added a longer one-time delay to wait out API server errors (see issue #7)
