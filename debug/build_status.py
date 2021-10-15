@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from datetime import datetime
 from time import sleep
 
 
@@ -27,6 +28,8 @@ def main():
     print('https://cirrus-ci.com/build/{}'.format(build_id))
     while True:
         response = api(query, params=dict(build=build_id))
+        now = datetime.utcnow()
+        print(f'{now:%Y-%m-%d %H:%M:%S+00:00 (UTC)}')
         print(json.dumps(response, indent=2, ensure_ascii=False))
         try:
             if response['build']['status'] not in {'CREATED', 'TRIGGERED', 'EXECUTING'}:
