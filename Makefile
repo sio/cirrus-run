@@ -42,3 +42,8 @@ package: | venv
 .PHONY: upload
 upload: package $(VENV)/twine
 	$(VENV)/twine upload $(TWINE_ARGS) dist/*
+
+
+.PHONY: debug/build_status
+debug/build_status: | venv
+	$(VENV)/python $@.py $(DEBUG_BUILD_ID)
