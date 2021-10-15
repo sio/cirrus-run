@@ -78,9 +78,12 @@ class CirrusAPI:
                 error_count += 1
                 if error_count > retries:
                     raise exc
-                elif isinstance(exc, CirrusHTTPError) \
-                and 'try again in 30 seconds' in exc.response.text \
-                and not long_wait_happened:
+                elif not long_wait_happened \
+                and (
+                  (isinstance(exc, CirrusHTTPError) and 'try again in 30 seconds' in exc.response.text)
+                  or
+                  (isinstance(exc, CirrusAPIError) and 'Internal Server Error(s) while executing query' in str(exc))
+                ):
                     long_wait_happened = True
                     log.debug('API server asked for longer retry delay: {}, retrying'.format(exc))
                     sleep(self.RETRY_LONG_DELAY)

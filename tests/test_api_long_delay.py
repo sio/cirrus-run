@@ -76,3 +76,57 @@ def test_long_retry_not_required(api, caplog):
 
     assert responses.assert_call_count(api._url, 1 + 3), \
            'Incorrect number of _post calls before raising CirrusHTTPError'
+
+
+@responses.activate
+def test_long_retry_internal_server_error_recoverable(api, caplog):
+    '''Retry GraphQL internal server error - with recovery'''
+    caplog.set_level(logging.DEBUG, logger='cirrus_run')
+    for params in [
+        {'status': 200, 'json': {'errors': [{'locations': [], 'message': 'Internal Server Error(s) while executing query'}]}},
+        {'status': 200, 'json': {'errors': [{'locations': [], 'message': 'Internal Server Error(s) while executing query'}]}},
+        {'status': 200, 'json': {'data': {'hello': 'world'}}},
+    ]:
+        responses.add(responses.Response(method='POST', url=api._url, **params))
+
+    time_start = time()
+    reply = api('fake query text', delay=0)
+    time_end = time()
+
+    assert reply == {'hello': 'world'}
+    assert responses.assert_call_count(api._url, 3)
+
+    assert time_end - time_start > api.RETRY_DELAY * 2
+    assert time_end - time_start < api.RETRY_LONG_DELAY * 2
+
+    long_delay_log_message_count = 0
+    for record in caplog.records:
+        if 'API server asked for longer retry delay' in record.message:
+            long_delay_log_message_count += 1
+    assert long_delay_log_message_count == 1
+
+
+@responses.activate
+def test_long_retry_internal_server_error_unrecoverable(api, caplog):
+    '''Retry GraphQL internal server error - unrecoverable'''
+    caplog.set_level(logging.DEBUG, logger='cirrus_run')
+    for params in [
+        {'status': 200, 'json': {'errors': [{'locations': [], 'message': 'Internal Server Error(s) while executing query'}]}},
+    ]:
+        responses.add(responses.Response(method='POST', url=api._url, **params))
+
+    time_start = time()
+    with pytest.raises(CirrusAPIError):
+        reply = api('fake query text', delay=0)
+    time_end = time()
+
+    assert responses.assert_call_count(api._url, 1 + 3)
+
+    assert time_end - time_start > api.RETRY_DELAY * 3
+    assert time_end - time_start < api.RETRY_LONG_DELAY * 2 + api.RETRY_DELAY
+
+    long_delay_log_message_count = 0
+    for record in caplog.records:
+        if 'API server asked for longer retry delay' in record.message:
+            long_delay_log_message_count += 1
+    assert long_delay_log_message_count == 1
