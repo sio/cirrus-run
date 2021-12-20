@@ -26,6 +26,7 @@ ENVIRONMENT = {
     'config': 'CIRRUS_CONFIG',
     'timeout': 'CIRRUS_TIMEOUT',
     'show_log': 'CIRRUS_SHOW_BUILD_LOG',
+    'flaky_markers': 'CIRRUS_FLAKY_MARKERS_FILE',
 }
 
 
@@ -33,7 +34,10 @@ def main(*a, **ka):
     args = parse_args(*a, **ka)
     configure_logging(args.verbose)
     log.debug('Parsed command line arguments:\n{}'.format(pformat(vars(args), indent=2)))
+    run(args)
 
+
+def run(args, retry_index=0):
     config = read_config(args.config)
     api = CirrusAPI(args.token)
     repo_id = get_repo(api, args.owner, args.repo)
@@ -52,12 +56,19 @@ def main(*a, **ka):
                                         exception=exc.__class__.__name__,
                                         text=str(exc))
 
+    flaky = False
+    is_flaky = None
     if args.show_build_log == 'always' \
     or (args.show_build_log == 'failure' and rc != 0):
         print('Build {}, see log below:'.format(status, build_url))
         try:
             for chunk in build_log(api, build_id):
                 print(chunk)
+                if rc != 0 and args.flaky_markers and not flaky:
+                    if is_flaky is None:
+                        is_flaky = flaky_checker(args.flaky_markers)
+                    if is_flaky(chunk):
+                        flaky = True
         except Exception as exc:
             error = traceback.format_exc()
             log.error(error)
@@ -65,7 +76,25 @@ def main(*a, **ka):
     print('Build {}: {}'.format(status, build_url))
     if message:
         print('  {}'.format(message))
-    sys.exit(rc)
+    if flaky and not retry_index:
+        run(args, retry_index=retry_index+1)
+    else:
+        sys.exit(rc)
+
+
+def flaky_checker(markers_file):
+    '''Create a function that checks build output for flaky markers'''
+    with open(markers_file) as f:
+        markers = f.read().splitlines()
+    def is_flaky(build_output):
+        '''Check build output for presence of flaky markers'''
+        for marker in markers:
+            if marker in build_output:
+                log.warning("Flaky build detected. Marker found in build output: '%s'", marker)
+                return True
+        else:
+            return False
+    return is_flaky
 
 
 def read_config(path):
@@ -181,6 +210,16 @@ def parse_args(*a, **ka):
             'Default value: ${} or "failure"'
         ).format(ENVIRONMENT['show_log']),
     )
+    parser.add_argument(
+        '--flaky-markers',
+        default=os.getenv(ENVIRONMENT['flaky_markers']),
+        metavar='FILE',
+        help=(
+            'Path to file that contains flaky build markers, one marker per line. '
+            'If any marker is found in Cirrus CI output for a failed build, '
+            'the build is retried once more. Default: ${}'
+        ).format(ENVIRONMENT['flaky_markers']),
+    )
     args = parser.parse_args(*a, **ka)
 
     if not args.token:
@@ -196,6 +235,9 @@ def parse_args(*a, **ka):
 
     if not os.path.isfile(args.config):
         parser.error('config file not found: {}'.format(args.config))
+
+    if args.flaky_markers and args.show_build_log == 'never':
+        args.show_build_log = 'failure'
 
     return args
 
