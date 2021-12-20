@@ -67,8 +67,7 @@ def run(args, retry_index=0):
                 if rc != 0 and args.flaky_markers and not flaky:
                     if is_flaky is None:
                         is_flaky = flaky_checker(args.flaky_markers)
-                    if is_flaky(chunk):
-                        flaky = True
+                    flaky = is_flaky(chunk)
         except Exception as exc:
             error = traceback.format_exc()
             log.error(error)
@@ -77,6 +76,7 @@ def run(args, retry_index=0):
     if message:
         print('  {}'.format(message))
     if flaky and not retry_index:
+        print('Flaky build detected: "{}", retrying...'.format(flaky))
         run(args, retry_index=retry_index+1)
     else:
         sys.exit(rc)
@@ -84,14 +84,18 @@ def run(args, retry_index=0):
 
 def flaky_checker(markers_file):
     '''Create a function that checks build output for flaky markers'''
+    markers = []
     with open(markers_file) as f:
-        markers = f.read().splitlines()
+        for line in f.read().splitlines():
+            if line.strip() and not line.startswith('#'):
+                markers.append(line)
+    log.debug('Loaded flaky build markers: %s', markers)
     def is_flaky(build_output):
         '''Check build output for presence of flaky markers'''
         for marker in markers:
             if marker in build_output:
-                log.warning("Flaky build detected. Marker found in build output: '%s'", marker)
-                return True
+                log.debug("Flaky build detected. Marker found in build output: '%s'", marker)
+                return marker
         else:
             return False
     return is_flaky
