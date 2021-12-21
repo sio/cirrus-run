@@ -1,5 +1,13 @@
 # Changelog for [cirrus-run]
 
+## v1.0.0 (2021-12-21)
+
+- Project status changed from 'beta' to 'stable'. cirrus-run is in use for
+  almost two years with only minor changes, it's safe to say it's ready.
+- Optionally retry flaky CI runs (detected by searching for text markers in CI
+  output)
+
+
 ## v0.5.0 (2021-10-15)
 
 - Gracefully handle GraphQL internal server errors wrapped into HTTP 200

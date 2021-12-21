@@ -2,9 +2,11 @@
 
 ## Project status
 
-Beta software. Adopted by several third parties to build their CI pipelines.
-Breaking changes in new releases are possible. Recommended to pin to specific
-version when using in production.
+Stable software. Adopted by several third parties to build their CI pipelines.
+The project uses [semantic versioning], any breaking changes will result in major
+version increment. Recommended to pin to `1.*` when using in production.
+
+[semantic versioning]: https://semver.org/
 
 
 ## Overview
