@@ -47,6 +47,7 @@ This image is especially useful for integrating with other CI platforms.
 usage: cirrus-run [-h] [--token TOKEN] [--github REPO] [--branch BRANCH] [-v]
                   [--timeout MINUTES]
                   [--show-build-log {failure,always,never}]
+                  [--flaky-markers FILE]
                   [CONFIG]
 
 Execute CI jobs in CirrusCI
@@ -81,6 +82,10 @@ optional arguments:
                         Specify whether to print the build log to stdout after
                         completing CI run. Default value:
                         $CIRRUS_SHOW_BUILD_LOG or "failure"
+  --flaky-markers FILE  Path to file that contains flaky build markers, one
+                        marker per line. If any marker is found in Cirrus CI
+                        output for a failed build, the build is retried once
+                        more. Default: $CIRRUS_FLAKY_MARKERS_FILE
 ```
 
 
