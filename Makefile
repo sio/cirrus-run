@@ -17,9 +17,10 @@ test: | venv
 	$(VENV)/pytest $(PYTEST_ARGS)
 
 
-.PHONY: test-job
-test-job: | venv
-	$(VENV)/cirrus-run tests/sample_build_config.yml -vvvv --show-build-log=always
+.PHONY: test-job test-job-yml test-job-star
+test-job: test-job-yml
+test-job-yml test-job-star: | venv
+	$(VENV)/cirrus-run tests/sample_build_config.$(subst test-job-,,$@) -vvvv --show-build-log=always
 
 
 include Makefile.venv
