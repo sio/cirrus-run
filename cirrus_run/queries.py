@@ -1,8 +1,8 @@
 '''
 Predefined queries for Cirrus API
 
-Designed to work with the following schema (2020-01-17):
-https://github.com/cirruslabs/cirrus-ci-web/blob/1806cccc/schema.graphql
+Designed to work with the following schema (2022-01-17):
+https://github.com/cirruslabs/cirrus-ci-web/blob/97d6ac7dbddb42aaa9736c4caab79cf361540f2a/schema.gql
 '''
 
 
@@ -30,18 +30,17 @@ class CirrusTimeoutError(RuntimeError):
 def get_repo(api: CirrusAPI, owner: str, repo: str) -> str:
     '''Get internal ID for GitHub repo'''
     query = '''
-        query GetRepos($owner: String!) {
-            githubRepositories(owner: $owner) {
+        query GetRepo($owner: String!, $repo: String!) {
+            ownerRepository(platform: "github", owner: $owner, name: $repo) {
                 id
                 name
             }
         }
     '''
-    params = dict(owner=owner)
-    all_repos = api(query, params)
-    for item in all_repos['githubRepositories']:
-        if item['name'] == repo:
-            return item['id']
+    params = dict(owner=owner, repo=repo)
+    reply = api(query, params)
+    if reply['ownerRepository']:
+        return reply['ownerRepository']['id']
     raise CirrusQueryError('repo not found: {}/{}'.format(owner, repo))
 
 
