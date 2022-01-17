@@ -1,0 +1,5 @@
+test_task:
+  name: Simple noop task
+  container:
+    image: debian:stable-slim
+  test_script: echo Hello World

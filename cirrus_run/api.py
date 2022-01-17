@@ -6,6 +6,7 @@ CirrusCI API interaction
 import logging
 from time import sleep
 from pprint import pformat
+from textwrap import dedent
 
 import requests
 
@@ -68,8 +69,8 @@ class CirrusAPI:
         if delay is None:
             delay = self.RETRY_DELAY
 
-        payload = dict(query=query.strip(), variables=params or {})
-        log.debug('Calling API with: {}'.format(payload))
+        payload = dict(query=dedent(query), variables=params or {})
+        log.debug('Calling API with parameters: {}, query: {}'.format(payload['variables'], payload['query']))
 
         error_count = 0
         long_wait_happened = False
