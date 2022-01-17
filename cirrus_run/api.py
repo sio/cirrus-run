@@ -45,7 +45,7 @@ class CirrusAPI:
     RETRY_DELAY = 2  # seconds
     RETRY_LONG_DELAY = 30
 
-    def __init__(self, token, url=None):
+    def __init__(self, token=None, url=None):
         if url is None:
             url = self.DEFAULT_URL
         self._url = url
@@ -53,9 +53,12 @@ class CirrusAPI:
         session = requests.Session()
         session.headers.update({
             'Accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(token),
             'User-Agent': self.USER_AGENT,
         })
+        if token:
+            session.headers.update({
+                'Authorization': 'Bearer {}'.format(token),
+            })
         session.timeout = 5
         self._requests = session
 
