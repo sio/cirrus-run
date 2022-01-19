@@ -1,3 +1,12 @@
+'''
+Helper script for issue #8: https://github.com/sio/cirrus-run/issues/8
+
+Monitor API query results for the status of specified build.
+
+Execute `make debug/build_status DEBUG_BUILD_ID=5735044040884224`
+from repo top-level directory (replace the number with your build ID)
+'''
+
 import json
 import os
 import sys
