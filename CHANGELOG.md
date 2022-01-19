@@ -1,5 +1,10 @@
 # Changelog for [cirrus-run]
 
+## v1.0.1 (2022-01-19)
+
+- API queries were updated to support changes in upstream GraphQL schema
+
+
 ## v1.0.0 (2021-12-21)
 
 - Project status changed from 'beta' to 'stable'. cirrus-run is in use for
