@@ -3,6 +3,7 @@ name: Execute automated tests
 
 on:
   push:
+  pull_request:
   schedule:
     - cron: '12 11 9 * *'
 
