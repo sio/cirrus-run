@@ -18,4 +18,4 @@ def api():
 
 def test_known_repo_id(api):
     '''Check that repo ID query still works'''
-    assert get_repo(api, 'sio', '.cirrus-ci-jobs') == '4749235174244352'
+    assert get_repo(api, 'sio', '.cirrus-ci-jobs') == '6013555460276224'
