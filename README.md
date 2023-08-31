@@ -20,7 +20,7 @@ have no relation to the specified GitHub repo. This enables integration with
 other source code hosting platforms, [e.g. with GitLab][blog]: you can trigger
 CirrusCI builds by executing cirrus-run in GitLab CI
 
-[blog]: https://potyarkin.ml/posts/2020/cirrus-ci-integration-for-gitlab-projects/
+[blog]: https://potyarkin.com/posts/2020/cirrus-ci-integration-for-gitlab-projects/
 
 
 
